@@ -33,6 +33,7 @@ function usePokemon() {
   const [error, setError] = useState<Error>();
 
   useEffect(() => {
+    setStatus("loading");
     axios
       .get("https://pokeapi.co/api/v2/pokemon", {
         params: {
@@ -78,9 +79,6 @@ function App() {
       </>
     );
   }
-
-  if (status === "success" && data.length === 0)
-    return <h1>No hay pokemones</h1>;
 
   return (
     <>

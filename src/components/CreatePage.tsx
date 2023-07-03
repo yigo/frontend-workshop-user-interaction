@@ -8,6 +8,10 @@
  * - description
  * 2. Validate the form so that the user can't submit the form
  * if the name or description are empty
+ * 3. Validate the form so that the user can't submit the form
+ * if the attack or defense are not numbers
+ * if the attack is less than 0 or greater than 100
+ * if the defense is less than 0 or greater than 100
  *
  * REFERENCES:
  * input types: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input
@@ -38,6 +42,10 @@ export default function Form() {
           <input type="checkbox" name="legendary" />
           <label>is Legendary</label>
         </div>
+        <label>Attack</label>
+        <input type="number" name="attack" />
+        <label>Defense</label>
+        <input type="number" name="defense" />
         <label>Description</label>
         <textarea name="description"></textarea>
         <button type="submit">Submit</button>
