@@ -1,12 +1,17 @@
+import { useState } from "react";
+import SearchPage from "./components/SearchPage";
+import CreatePage from "./components/CreatePage";
 
-import './App.css'
-
-function App() {
-  return ( 
+export default function App() {
+  const [tab, setTab] = useState("search");
+  return (
     <>
-     Hello world
-    </> 
-  )
+      <div>
+        <button onClick={() => setTab("search")}>Search</button>
+        <button onClick={() => setTab("create")}>Create</button>
+      </div>
+      {tab === "search" && <SearchPage />}
+      {tab === "create" && <CreatePage />}
+    </>
+  );
 }
-
-export default App
