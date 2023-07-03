@@ -5,6 +5,8 @@
  * - name
  * - type
  * - is legendary
+ * - attack
+ * - defense
  * - description
  * 2. Validate the form so that the user can't submit the form
  * if the name or description are empty
