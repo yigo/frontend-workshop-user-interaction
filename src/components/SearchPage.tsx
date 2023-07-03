@@ -27,29 +27,40 @@ interface PokemonListItem {
   url: string;
 }
 
-function usePokemon() {
+function usePokemon({ offset = 0, search = "" }) {
   const [data, setData] = useState<PokemonListItem[]>([]);
   const [status, setStatus] = useState("loading");
   const [error, setError] = useState<Error>();
+  console.log(search);
+
+  const url =
+    search !== ""
+      ? `https://pokeapi.co/api/v2/pokemon/${search}`
+      : "https://pokeapi.co/api/v2/pokemon";
 
   useEffect(() => {
     setStatus("loading");
+    setData([]);
     axios
-      .get("https://pokeapi.co/api/v2/pokemon", {
+      .get(url, {
         params: {
           limit: 20,
-          offset: 0,
+          offset,
         },
       })
       .then((response) => {
-        setData(response.data.results);
+        if (search !== "" && response.data) {
+          setData(response.data);
+        } else {
+          setData(response.data.results);
+        }
         setStatus("success");
       })
       .catch((error) => {
         setError(error);
         setStatus("error");
       });
-  }, []);
+  }, [offset, search]);
 
   return {
     data,
@@ -58,38 +69,71 @@ function usePokemon() {
   };
 }
 
+function useDebounce(value: string) {
+  const [debouncedInputValue, setDebouncedValue] = useState("");
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setDebouncedValue(value);
+    }, 500);
+    return () => clearTimeout(timeoutId);
+  }, [value]);
+  return debouncedInputValue;
+}
+
 function App() {
-  const { data, status, error } = usePokemon();
+  const [offset, setOffset] = useState(0);
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search);
+  const { data, status, error } = usePokemon({
+    offset,
+    search: debouncedSearch,
+  });
 
   const fetchPrevious = () => {
-    console.log("fetch previous page");
+    console.log("fetch previous page: " + offset);
+    setOffset(offset <= 0 ? 0 : offset - 20);
   };
 
   const fetchNext = () => {
-    console.log("fetch next page");
+    console.log("fetch next page: " + offset);
+    setOffset(offset + 20);
   };
 
-  if (status === "loading") return <h1>Cargando...</h1>;
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(event.target.value);
+  };
 
-  if (status === "error") {
-    return (
-      <>
-        <h1>Ha ocurrido un error</h1>
-        <pre>{error?.message}</pre>
-      </>
-    );
-  }
+  //if (status === "loading") return <h1>Cargando...</h1>;
 
+  // if (status === "error") {
+  //   return (
+  //     <>
+  //       <h1>Ha ocurrido un error</h1>
+  //       <pre>{error?.message}</pre>
+  //     </>
+  //   );
+  // }
+
+  console.log(data);
   return (
     <>
       <h1>Search Pokemons</h1>
-      <button onClick={fetchPrevious}>previous</button>
-      <button onClick={fetchNext}>next</button>
-      <ul>
-        {data.map((pokemon) => (
-          <li key={pokemon.name}>{pokemon.name}</li>
-        ))}
-      </ul>
+      <input type="text" onChange={handleSearch} />
+      <button disabled={status === "loading"} onClick={fetchPrevious}>
+        previous
+      </button>
+      <button disabled={status === "loading"} onClick={fetchNext}>
+        next
+      </button>
+      <h2>Results</h2>
+      {search !== "" && data && <p>{data.name}</p>}
+      {search === "" && (
+        <ul>
+          {data?.map((pokemon) => (
+            <li key={pokemon.name}>{pokemon.name}</li>
+          ))}
+        </ul>
+      )}
     </>
   );
 }

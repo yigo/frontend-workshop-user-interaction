@@ -20,19 +20,40 @@
  * react-hook-form: https://react-hook-form.com/get-started
  *
  */
+import { useForm } from "react-hook-form";
+
+interface Inputs {
+  name: string;
+  description: string;
+  type: string;
+  legendary: boolean;
+  attack: number;
+  defense: number;
+}
 
 export default function Form() {
-  function handleOnSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<Inputs>();
+
+  console.log(errors);
+  function createPokemon(data: Inputs) {
+    console.log(data);
   }
   return (
     <>
       <h1>Create Pokemon</h1>
-      <form onSubmit={handleOnSubmit}>
+      <form onSubmit={handleSubmit(createPokemon)}>
         <label>Name</label>
-        <input type="text" name="name" />
+        <input
+          type="text"
+          {...register("name", { required: "nombre es requerido" })}
+        />
+        {errors.name && <p>{errors.name.message}</p>}
         <label>Type</label>
-        <select name="type">
+        <select {...register("type")}>
           <option value=""></option>
           <option value="electric">Electric</option>
           <option value="water">Water</option>
@@ -41,15 +62,19 @@ export default function Form() {
           <option value="poison">Poison</option>
         </select>
         <div>
-          <input type="checkbox" name="legendary" />
+          <input type="checkbox" {...register("legendary")} />
           <label>is Legendary</label>
         </div>
         <label>Attack</label>
-        <input type="number" name="attack" />
+        <input type="number" {...register("attack", { min: 0, max: 100 })} />
         <label>Defense</label>
-        <input type="number" name="defense" />
+        <input type="number" {...register("defense", { min: 0, max: 100 })} />
         <label>Description</label>
-        <textarea name="description"></textarea>
+        <textarea
+          {...register("description", {
+            required: "description es requerido",
+          })}></textarea>
+        {errors.description && <p>{errors.description.message}</p>}
         <button type="submit">Submit</button>
       </form>
     </>
