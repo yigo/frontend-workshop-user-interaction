@@ -42,7 +42,7 @@ function usePokemonList({ offset = 0 }) {
 console.log("RENDER LIST APP");
 function App() {
   const [offset, setOffset] = useState(0);
-  const { data, status, error } = usePokemonList({
+  const { data, status } = usePokemonList({
     offset,
   });
 

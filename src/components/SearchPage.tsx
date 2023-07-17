@@ -59,7 +59,7 @@ function useDebounce(value: string) {
 function App() {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search);
-  const { data, status, error } = usePokemon({
+  const { data, status } = usePokemon({
     search: debouncedSearch,
   });
 

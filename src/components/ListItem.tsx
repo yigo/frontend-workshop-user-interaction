@@ -21,7 +21,7 @@ export default function PokemonListItem({
   name: string;
   url: string;
 }) {
-  const { status, error, data } = usePokemonById({ url });
+  const { status, data } = usePokemonById({ url });
 
   return (
     <div>
