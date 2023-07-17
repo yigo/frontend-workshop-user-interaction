@@ -18,7 +18,7 @@
  * - pokemon api https://pokeapi.co/
  * - debounce https://www.developerway.com/posts/debouncing-in-react
  */
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import PokemonListItem from "./ListItem";
 
 import { useQuery } from "@tanstack/react-query";
@@ -40,43 +40,56 @@ function usePokemonList({ offset = 0 }) {
 }
 
 console.log("RENDER LIST APP");
+
+const ButtonPrevious = ({
+  status,
+  onClick,
+}: {
+  status: string;
+  onClick: () => void;
+}) => {
+  return (
+    <button disabled={status === "loading"} onClick={() => onClick()}>
+      previous
+    </button>
+  );
+};
+
+const ButtonNext = ({
+  status,
+  onClick,
+}: {
+  status: string;
+  onClick: () => void;
+}) => {
+  return (
+    <button disabled={status === "loading"} onClick={() => onClick()}>
+      previous
+    </button>
+  );
+};
+
 function App() {
   const [offset, setOffset] = useState(0);
   const { data, status } = usePokemonList({
     offset,
   });
 
-  const fetchPrevious = () => {
+  const fetchPrevious = useCallback(() => {
     console.log("fetch previous page: " + offset);
     setOffset(offset <= 0 ? 0 : offset - 20);
-  };
+  }, [offset]);
 
-  const fetchNext = () => {
+  const fetchNext = useCallback(() => {
     console.log("fetch next page: " + offset);
     setOffset(offset + 20);
-  };
-
-  const ButtonPrevious = () => {
-    return (
-      <button disabled={status === "loading"} onClick={() => fetchPrevious()}>
-        previous
-      </button>
-    );
-  };
-
-  const ButtonNext = () => {
-    return (
-      <button disabled={status === "loading"} onClick={() => fetchNext()}>
-        previous
-      </button>
-    );
-  };
+  }, [offset]);
 
   return (
     <>
       <h1>List Pokemons</h1>
-      <ButtonPrevious />
-      <ButtonNext />
+      <ButtonPrevious status={status} onClick={() => fetchPrevious()} />
+      <ButtonNext status={status} onClick={() => fetchNext()} />
       {status === "loading" && <div>Loading...</div>}
 
       {data?.map((pokemon) => (
