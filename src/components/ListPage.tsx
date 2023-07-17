@@ -19,9 +19,27 @@
  * - debounce https://www.developerway.com/posts/debouncing-in-react
  */
 import { useState } from "react";
-import usePokemonList from "./hooks/usePokemonList";
-import PokemonListItem from "./components/PokemonListItem";
+import PokemonListItem from "./ListItem";
 
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+
+interface PokemonListItem {
+  name: string;
+  url: string;
+}
+const url = "https://pokeapi.co/api/v2/pokemon";
+function usePokemonList({ offset = 0 }) {
+  return useQuery<PokemonListItem[]>({
+    queryKey: ["pokemon-list", offset],
+    queryFn: () =>
+      axios
+        .get(url, { params: { offset, limit: 20 } })
+        .then((res) => res.data.results),
+  });
+}
+
+console.log("RENDER LIST APP");
 function App() {
   const [offset, setOffset] = useState(0);
   const { data, status, error } = usePokemonList({
@@ -30,32 +48,44 @@ function App() {
 
   const fetchPrevious = () => {
     console.log("fetch previous page: " + offset);
-    setOffset(offset <= 0 ? 0 : offset - 5);
+    setOffset(offset <= 0 ? 0 : offset - 20);
   };
 
   const fetchNext = () => {
     console.log("fetch next page: " + offset);
-    setOffset(offset + 5);
+    setOffset(offset + 20);
   };
+
+  const ButtonPrevious = () => {
+    return (
+      <button disabled={status === "loading"} onClick={() => fetchPrevious()}>
+        previous
+      </button>
+    );
+  };
+
+  const ButtonNext = () => {
+    return (
+      <button disabled={status === "loading"} onClick={() => fetchNext()}>
+        previous
+      </button>
+    );
+  };
+
   return (
     <>
       <h1>List Pokemons</h1>
-      <button disabled={status === "loading"} onClick={fetchPrevious}>
-        previous
-      </button>
-      <button disabled={status === "loading"} onClick={fetchNext}>
-        next
-      </button>
+      <ButtonPrevious />
+      <ButtonNext />
       {status === "loading" && <div>Loading...</div>}
-      <>
-        {data?.map((pokemon) => (
-          <PokemonListItem
-            key={pokemon.name}
-            name={pokemon.name}
-            url={pokemon.url}
-          />
-        ))}
-      </>
+
+      {data?.map((pokemon) => (
+        <PokemonListItem
+          key={pokemon.name}
+          name={pokemon.name}
+          url={pokemon.url}
+        />
+      ))}
     </>
   );
 }
